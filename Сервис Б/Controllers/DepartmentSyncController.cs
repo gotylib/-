@@ -1,4 +1,4 @@
-﻿using DataBase;
+using DataBase;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -181,7 +181,7 @@ namespace Сервис_Б.Controllers
         public async Task<IActionResult> SyncDepartments()
         {
             // Путь к файлу
-            var filePath = "file.json"; 
+            var filePath = "file.json";
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -208,18 +208,23 @@ namespace Сервис_Б.Controllers
                 }
                 else
                 {
-                    // Если подразделение есть в БД, проверяем положение в дереве
+                    // Если подразделение есть в БД, обновляем имя и статус
+                    existingDepartment.Name = department.Name; // Обновляем имя
+                    existingDepartment.Status = department.Status; // Обновляем статус
+
+                    // Проверяем положение в дереве
                     if (existingDepartment.ParentId != department.ParentId) // Сравниваем родительские идентификаторы
                     {
                         existingDepartment.ParentId = department.ParentId; // Обновляем родителя
-                        existingDepartment.Status = department.Status; // Обновляем статус
-                        _db.Departments.Update(existingDepartment); // Обновляем запись
                     }
+
+                    _db.Departments.Update(existingDepartment); // Обновляем запись
                 }
             }
 
             await _db.SaveChangesAsync(); // Сохраняем изменения в БД
             return Ok("Синхронизация завершена успешно."); // Возвращаем сообщение об успешной синхронизации
         }
+
     }
 }
